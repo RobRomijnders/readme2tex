@@ -2,7 +2,7 @@ import os
 from glob import glob
 from subprocess import check_output, CalledProcessError
 
-from . import render
+from readme2tex.render import render
 
 try:
     input = raw_input

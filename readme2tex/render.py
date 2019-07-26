@@ -299,17 +299,24 @@ def render(
         try:
             # git remote get-url origin
             giturl = check_output(['git', 'remote', '-v']).strip().decode('utf-8').splitlines()[0]
-            start = giturl.find('.com/') + 5
-            userproj = giturl[start:]
-            end = userproj.find('.git')
-            user, project = userproj[:end].split('/')
+            if 'http' in giturl:
+                start = giturl.find('.com/') + 5
+                userproj = giturl[start:]
+                end = userproj.find('.git')
+                user, project = userproj[:end].split('/')
+            else:
+                # NOTE: this assumes that usernames and project names only contains letters
+                groups = re.match(r'[^:]+\:(?P<username>([a-zA-Z]+))/(?P<project>([a-zA-Z]+)).git', giturl)
+                user = groups.group("username")
+                project = groups.group("project")
+
         except:
             raise Exception("Please specify your github --username and --project.")
 
     if nocdn:
         svg_url = "{svgdir}/{name}.svg"
     else:
-        svg_url = "https://rawgit.com/{user}/{project}/{branch}/{svgdir}/{name}.svg"
+        svg_url = "https://github.com/{user}/{project}/blob/{branch}/{svgdir}/{name}.svg"
 
     if pngtrick:
         svg_url = svg_url[:-4] + '.png'
